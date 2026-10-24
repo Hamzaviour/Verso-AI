@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS articles (
   description  text NOT NULL DEFAULT '',
   published_at timestamptz NOT NULL,
   fetched_at   timestamptz NOT NULL DEFAULT now(),
-  embedding    vector(1536),
+  embedding    vector(384),
   event_id     bigint
 );
 CREATE INDEX IF NOT EXISTS articles_published_idx ON articles (published_at DESC);

@@ -9,7 +9,8 @@ export async function GET(request: Request) {
     return new Response("Unauthorized", { status: 401 });
   }
   try {
-    const stats = await runPipeline({ analyzeLimit: 12 });
+    // Groq's free tier is paced at ~32s per event, so fewer fit in 300s.
+    const stats = await runPipeline({ analyzeLimit: process.env.GROQ_API_KEY ? 7 : 12 });
     revalidateTag("events", "max");
     return Response.json({ ok: true, stats });
   } catch (err) {

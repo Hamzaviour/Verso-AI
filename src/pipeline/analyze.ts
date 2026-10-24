@@ -1,10 +1,9 @@
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { db } from "@/lib/db";
+import { analysisModel } from "@/lib/models";
 import { classifyClaim } from "@/lib/claims";
 import type { Claim, LoadedTerm, SummarySentence } from "@/lib/types";
-
-const MODEL = process.env.VERSO_ANALYSIS_MODEL ?? "anthropic/claude-sonnet-5.5";
 
 export const TOPICS = [
   "Politics", "World", "Business", "Technology", "Science",
@@ -17,16 +16,16 @@ const schema = z.object({
   summary: z
     .array(z.object({
       text: z.string().describe("One neutral sentence."),
-      sources: z.array(z.string()).min(1).describe("Article keys like A3 that support this sentence."),
+      sources: z.array(z.string()).describe("Article keys like A3 that support this sentence."),
     }))
-    .min(2).max(6),
+    ,
   claims: z
     .array(z.object({
       text: z.string().describe("One atomic, checkable factual claim, written neutrally."),
-      supportedBy: z.array(z.string()).min(1).describe("Article keys that state or clearly imply the claim."),
+      supportedBy: z.array(z.string()).describe("Article keys that state or clearly imply the claim."),
       contradictedBy: z.array(z.string()).describe("Article keys that state something incompatible. Empty if none."),
     }))
-    .min(3).max(14),
+    ,
   loadedTerms: z
     .array(z.object({
       term: z.string().describe("Exact word or short phrase as it appears in that article's headline or description."),
@@ -34,7 +33,7 @@ const schema = z.object({
       neutral: z.string().describe("A neutral alternative wording."),
       note: z.string().describe("Under 18 words: what framing the term carries."),
     }))
-    .max(10),
+    ,
 });
 
 const SYSTEM = `You are the analysis desk of Verso, a news product that shows how one event is covered across the political spectrum.
@@ -61,24 +60,25 @@ export async function analyzeEvent(eventId: number) {
     WHERE a.event_id = ${eventId}
     ORDER BY a.published_at DESC`) as ArticleRow[];
 
-  // At most two articles per outlet, 24 total, so no single outlet dominates.
+  // At most two articles per outlet, 18 total, so no single outlet dominates.
   const perOutlet = new Map<string, number>();
   const picked = all.filter((a) => {
     const n = perOutlet.get(a.outlet_id) ?? 0;
     perOutlet.set(a.outlet_id, n + 1);
     return n < 2;
-  }).slice(0, 24);
+  }).slice(0, 18);
 
   const keyToArticle = new Map(picked.map((a, i) => [keyFor(i), a]));
   const prompt = picked
-    .map((a, i) => `${keyFor(i)} | ${a.outlet_name}\nHeadline: ${a.title}\nDescription: ${a.description || "(none)"}`)
+    .map((a, i) => `${keyFor(i)} | ${a.outlet_name}\nHeadline: ${a.title}\nDescription: ${a.description.slice(0, 320) || "(none)"}`)
     .join("\n\n");
 
   const { output } = await generateText({
-    model: MODEL,
+    model: analysisModel(),
     system: SYSTEM,
-    prompt: `Articles about one event:\n\n${prompt}\n\nProduce the analysis.`,
+    prompt: `Articles about one event:\n\n${prompt}\n\nProduce the analysis: 2 to 6 summary sentences, 3 to 14 claims, at most 10 loaded terms (an empty list is fine).`,
     output: Output.object({ schema }),
+    maxRetries: 0,
   });
 
   const resolve = (keys: string[]) =>
@@ -132,21 +132,30 @@ export async function analyzePending(limit = 10) {
     ORDER BY outlet_count DESC, last_updated DESC
     LIMIT ${limit}`) as { id: number }[];
 
+  // Sequential on purpose: free tiers cap tokens per minute, so when the
+  // provider says "try again in Ns" we wait that long and retry.
   const done: number[] = [];
   const failed: { id: number; error: string }[] = [];
-  const queue = [...pending];
-  await Promise.all(
-    Array.from({ length: 3 }, async () => {
-      while (queue.length) {
-        const { id } = queue.shift()!;
-        try {
-          await analyzeEvent(id);
-          done.push(id);
-        } catch (err) {
-          failed.push({ id, error: err instanceof Error ? err.message : String(err) });
+  // Groq free tier: ~8k tokens/min and each call is ~4k, so pace the calls.
+  const gapMs = process.env.GROQ_API_KEY ? 32_000 : 0;
+  for (const [i, { id }] of pending.entries()) {
+    if (i > 0 && gapMs) await new Promise((r) => setTimeout(r, gapMs));
+    for (let attempt = 0; ; attempt++) {
+      try {
+        await analyzeEvent(id);
+        done.push(id);
+        break;
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        const wait = message.match(/try again in ([\d.]+)s/i);
+        if (wait && attempt < 4) {
+          await new Promise((r) => setTimeout(r, (Number(wait[1]) + 1) * 1000));
+          continue;
         }
+        failed.push({ id, error: message.slice(0, 300) });
+        break;
       }
-    }),
-  );
+    }
+  }
   return { analyzed: done.length, failed };
 }

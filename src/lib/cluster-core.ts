@@ -11,7 +11,9 @@ export type Point = { id: number; outletId: string; vec: Float32Array };
 
 export type ClusterOptions = { join: number; merge: number };
 
-export const DEFAULT_CLUSTER_OPTIONS: ClusterOptions = { join: 0.6, merge: 0.74 };
+// Tuned for all-MiniLM-L6-v2 on headline + description: pairs above ~0.7 are
+// almost always the same event, 0.6-0.7 mostly, below 0.6 only the same topic.
+export const DEFAULT_CLUSTER_OPTIONS: ClusterOptions = { join: 0.63, merge: 0.72 };
 
 export function normalize(v: ArrayLike<number>): Float32Array {
   let n = 0;

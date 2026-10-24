@@ -6,8 +6,8 @@ Project codename: Spectrum (see `12-spectrum.pdf` for the original brief).
 
 ## What it does
 
-- **Event clustering.** RSS feeds from 33 outlets are embedded and grouped into events (TypeScript centroid clustering with a merge pass, `src/lib/cluster-core.ts`).
-- **Neutral summary with citations.** Claude (via Vercel AI Gateway) writes a neutral headline and summary; every sentence links back to the outlets it draws on.
+- **Event clustering.** RSS feeds from 33 outlets are embedded locally (all-MiniLM-L6-v2 via transformers.js) and grouped into events (TypeScript centroid clustering with a merge pass, `src/lib/cluster-core.ts`).
+- **Neutral summary with citations.** An LLM (Groq free tier, `openai/gpt-oss-120b`; or any model via Vercel AI Gateway) writes a neutral headline and summary; every sentence links back to the outlets it draws on.
 - **Agreed facts vs one-sided claims.** The model only attributes atomic claims to articles. Code decides agreement from where those outlets sit on the spectrum (`src/lib/claims.ts`), so "agreed" never depends on the model's opinion.
 - **Loaded-language detector.** Framing words are flagged next to a neutral alternative and underlined on the front pages.
 - **Headline comparison.** Every outlet's headline as a front page, left to right, with words few other outlets used highlighted.
@@ -15,15 +15,18 @@ Project codename: Spectrum (see `12-spectrum.pdf` for the original brief).
 
 ## Stack
 
-Next.js 16 (App Router, Cache Components) · TypeScript · Tailwind CSS 4 · D3 (scales + force layout) · Neon Postgres + pgvector · AI SDK 7 through Vercel AI Gateway (`anthropic/claude-sonnet-5.5`, `openai/text-embedding-3-small`) · Vercel Cron.
+Next.js 16 (App Router, Cache Components) · TypeScript · Tailwind CSS 4 · D3 (scales + force layout) · Neon Postgres + pgvector · AI SDK 7 with Groq (free tier) or Vercel AI Gateway · local embeddings with transformers.js · Vercel Cron.
+
+Runs at zero cost: Neon free plan, Groq free key (no card), embeddings on your own machine.
 
 ## Run it
 
 ```bash
 npm install
-cp .env.example .env.local     # fill DATABASE_URL and AI_GATEWAY_API_KEY
+cp .env.example .env.local     # fill DATABASE_URL and GROQ_API_KEY (free at console.groq.com)
 npm run db:migrate             # creates tables + pgvector
 npm run ingest                 # fetch, embed, cluster, analyse (arg = max events to analyse, default 10)
+                               # Groq free tier: calls are paced ~32s apart to stay under 8k tokens/min
 npm run dev
 ```
 

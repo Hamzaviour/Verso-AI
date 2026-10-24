@@ -1,9 +1,7 @@
-import { embedMany } from "ai";
 import { db, toVector } from "@/lib/db";
+import { embedTexts } from "@/lib/models";
 
-const MODEL = process.env.VERSO_EMBEDDING_MODEL ?? "openai/text-embedding-3-small";
-
-export async function embedPending(limit = 600) {
+export async function embedPending(limit = 1500) {
   const sql = db();
   const rows = (await sql`
     SELECT id, title, description FROM articles
@@ -12,12 +10,10 @@ export async function embedPending(limit = 600) {
     LIMIT ${limit}`) as { id: number; title: string; description: string }[];
 
   let embedded = 0;
-  for (let i = 0; i < rows.length; i += 96) {
-    const batch = rows.slice(i, i + 96);
-    const { embeddings } = await embedMany({
-      model: MODEL,
-      values: batch.map((r) => `${r.title}\n${r.description}`.slice(0, 2000)),
-    });
+  for (let i = 0; i < rows.length; i += 32) {
+    const batch = rows.slice(i, i + 32);
+    // MiniLM reads ~256 tokens; headline plus the start of the description is enough.
+    const embeddings = await embedTexts(batch.map((r) => `${r.title}. ${r.description}`.slice(0, 700)));
     const ids = batch.map((r) => r.id);
     const vectors = embeddings.map(toVector);
     await sql`

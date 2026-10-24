@@ -13,6 +13,8 @@
     "test": "tsx --test src/lib/core.test.ts"
   },
   "dependencies": {
+    "@ai-sdk/groq": "^4.0.69",
+    "@huggingface/transformers": "^4.3.1",
     "@neondatabase/serverless": "^1.2.0",
     "ai": "^7.0.152",
     "d3": "^7.9.0",
