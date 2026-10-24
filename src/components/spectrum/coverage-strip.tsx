@@ -22,7 +22,7 @@ export function CoverageStrip({ coverage, className }: { coverage: Item[]; class
     <div
       className={`relative ${className ?? ""}`}
       role="img"
-      aria-label={`Covered by ${coverage.length} outlets: ${counts.left} left of centre, ${counts.center} centre, ${counts.right} right of centre`}
+      aria-label={`Covered by ${coverage.length} outlets: ${counts.left} left of center, ${counts.center} center, ${counts.right} right of center`}
     >
       <div className="relative" style={{ height: 6 + depth * 9 }}>
         {placed.map((p) => (

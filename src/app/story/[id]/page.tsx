@@ -57,7 +57,7 @@ async function Story({ params }: { params: Promise<{ id: string }> }) {
       <RecordStoryView id={String(num)} biases={outlets.map((o) => o.bias)} />
       <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-10">
         <div className="pt-6">
-          <Link href="/" className="inline-flex items-center gap-1.5 text-[13px] font-medium text-ink-3 hover:text-ink">
+          <Link href="/today" className="inline-flex items-center gap-1.5 text-[13px] font-medium text-ink-3 hover:text-ink">
             <ArrowLeft size={14} strokeWidth={2} /> Today’s wall
           </Link>
         </div>
@@ -103,7 +103,7 @@ async function Story({ params }: { params: Promise<{ id: string }> }) {
                   Who covered it
                 </h2>
                 <span className="tabular text-[12px] text-ink-3">
-                  {counts.left} left · {counts.center} centre · {counts.right} right
+                  {counts.left} left · {counts.center} center · {counts.right} right
                 </span>
               </div>
               <div className="mt-3">

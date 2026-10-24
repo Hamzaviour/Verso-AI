@@ -101,7 +101,7 @@ export function SpectrumPlot({ outlets, height = 340, compact = false }: { outle
             <rect x={PAD.left} y={h - PAD.bottom + 6} width={width - PAD.left - PAD.right} height={3} fill="url(#spectrum-axis)" rx={1.5} />
             {[
               { v: -1, label: "Left", anchor: "start" as const },
-              { v: 0, label: "Centre", anchor: "middle" as const },
+              { v: 0, label: "Center", anchor: "middle" as const },
               { v: 1, label: "Right", anchor: "end" as const },
             ].map((t) => (
               <text

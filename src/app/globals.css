@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* Verso tokens. World: the front-page comparison wall, printed in process
-   colour. Cyan = left of centre, magenta = right, key (ink) = centre,
+   color. Cyan = left of center, magenta = right, key (ink) = center,
    process yellow = the highlighter that marks wording differences. */
 
 :root {
@@ -153,4 +153,65 @@ body {
     animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Spectrum slider: transparent track over the registration rule, ink puck. */
+.verso-range {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  height: 30px;
+  cursor: grab;
+}
+.verso-range:active {
+  cursor: grabbing;
+}
+.verso-range:disabled {
+  cursor: default;
+}
+.verso-range::-webkit-slider-runnable-track {
+  height: 30px;
+  background: transparent;
+}
+.verso-range::-moz-range-track {
+  height: 30px;
+  background: transparent;
+}
+.verso-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 26px;
+  height: 26px;
+  margin-top: 2px;
+  border-radius: 999px;
+  background: var(--ink);
+  border: 4px solid var(--sheet);
+  box-shadow: 0 0 0 1px var(--ink), var(--shadow);
+}
+.verso-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--ink);
+  border: 4px solid var(--sheet);
+  box-shadow: 0 0 0 1px var(--ink), var(--shadow);
+}
+.verso-range:focus-visible {
+  outline: none;
+}
+.verso-range:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 1px var(--ink), 0 0 0 5px var(--focus);
+}
+.verso-range:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 1px var(--ink), 0 0 0 5px var(--focus);
 }

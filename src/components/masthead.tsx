@@ -10,7 +10,7 @@ export function Masthead() {
   return (
     <header className="relative border-b border-rule bg-paper">
       <div className="mx-auto flex max-w-[1320px] items-center gap-4 px-4 pt-4 pb-3 sm:px-6 lg:px-10">
-        <Link href="/" aria-label="Verso, today's wall" className="shrink-0 rounded-sm">
+        <Link href="/" aria-label="Verso home" className="shrink-0 rounded-sm">
           <Wordmark size={30} />
         </Link>
         <Suspense fallback={<div className="ml-2 hidden md:block" />}>

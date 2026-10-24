@@ -35,9 +35,9 @@ export const viewport: Viewport = {
 // Design direction contract, emitted as an HTML comment so it survives the build.
 const DIRECTION_CONTRACT = `<!--
 THESIS: Coverage of one event shown as a wall of front pages arranged left to right, so the reader sees the shape of a story before any single take. Refuses the aggregator feed of identical cards with a bias pill.
-OWN-WORLD: Newsprint grey sheets on a darker press-room ground; process-colour CMYK as the only chroma: cyan = left plates, magenta = right plates, key ink = centre, process yellow = highlighter for wording differences. Source Serif headline slabs, Archivo (variable width) for mastheads and data. Hairline rules, registration-mark details, misregistered-circle mark.
+OWN-WORLD: Newsprint grey sheets on a darker press-room ground; process-color CMYK as the only chroma: cyan = left plates, magenta = right plates, key ink = center, process yellow = highlighter for wording differences. Source Serif headline slabs, Archivo (variable width) for mastheads and data. Hairline rules, registration-mark details, misregistered-circle mark.
 STORY: The reader sees today's events, opens one, watches outlets slide onto the spectrum, reads agreed facts first, compares headlines with differences highlighted, checks their own bubble.
-FIRST VIEWPORT: Masthead with wordmark and edition line; lead event headline at display scale left, its coverage spectrum right; beneath, three front-page slabs (leftmost, centre, rightmost headline) side by side. Primary action: open the story.
+FIRST VIEWPORT: Masthead with wordmark and edition line; lead event headline at display scale left, its coverage spectrum right; beneath, three front-page slabs (leftmost, center, rightmost headline) side by side. Primary action: open the story.
 FORM: Front-page comparison wall, grounded candidate 3 of 7; seed 3b328450.
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
 -->`;

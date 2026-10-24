@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const LINKS = [
-  { href: "/", label: "Today" },
+  { href: "/today", label: "Today" },
   { href: "/bubble", label: "Your bubble" },
   { href: "/method", label: "Method" },
 ];
@@ -14,7 +14,7 @@ export function NavLinks() {
   return (
     <nav aria-label="Primary" className="ml-2 hidden items-center gap-1 md:flex">
       {LINKS.map((l) => {
-        const active = l.href === "/" ? pathname === "/" || pathname.startsWith("/story") : pathname.startsWith(l.href);
+        const active = l.href === "/today" ? pathname === "/today" || pathname.startsWith("/story") : pathname.startsWith(l.href);
         return (
           <Link
             key={l.href}
@@ -41,7 +41,7 @@ export function MobileNav() {
       className="fixed inset-x-0 bottom-0 z-40 flex border-t border-rule bg-paper/95 backdrop-blur md:hidden"
     >
       {LINKS.map((l) => {
-        const active = l.href === "/" ? pathname === "/" || pathname.startsWith("/story") : pathname.startsWith(l.href);
+        const active = l.href === "/today" ? pathname === "/today" || pathname.startsWith("/story") : pathname.startsWith(l.href);
         return (
           <Link
             key={l.href}

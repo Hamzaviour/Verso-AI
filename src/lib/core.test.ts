@@ -17,7 +17,7 @@ test("any contradiction makes a claim contested", () => {
   assert.equal(classifyClaim([-0.6, 0.5], 1, 8), "contested");
 });
 
-test("centre-only claims from a few outlets are partial", () => {
+test("center-only claims from a few outlets are partial", () => {
   assert.equal(classifyClaim([0.0, 0.1], 0, 8), "partial");
 });
 

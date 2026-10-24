@@ -19,9 +19,9 @@ const BOARD = {
 } as React.CSSProperties;
 
 const SWATCHES = [
-  { name: "Cyan plate", role: "Left of centre", light: "#0086C3", dark: "#3FB4EC" },
-  { name: "Key", role: "Centre, text", light: "#131314", dark: "#ECEBE6" },
-  { name: "Magenta plate", role: "Right of centre", light: "#C8006A", dark: "#FF5AA8" },
+  { name: "Cyan plate", role: "Left of center", light: "#0086C3", dark: "#3FB4EC" },
+  { name: "Key", role: "Center, text", light: "#131314", dark: "#ECEBE6" },
+  { name: "Magenta plate", role: "Right of center", light: "#C8006A", dark: "#FF5AA8" },
   { name: "Process yellow", role: "Highlighter", light: "#FFE14A", dark: "#FFD83A" },
   { name: "Newsprint", role: "Ground", light: "#E6E6E1", dark: "#0E0F11" },
   { name: "Sheet", role: "Front pages", light: "#F3F3EF", dark: "#17181B" },
@@ -68,7 +68,7 @@ export default function BrandPage() {
           {/* 2. Construction */}
           <Panel label="Construction" n="02" dark>
             <div className="grid h-full min-h-[260px] place-items-center p-6">
-              <svg viewBox="-4 -6 48 40" className="w-full max-w-[300px]" aria-label="Mark construction: two circles of radius 11, centres 12 apart, their overlap filled">
+              <svg viewBox="-4 -6 48 40" className="w-full max-w-[300px]" aria-label="Mark construction: two circles of radius 11, centers 12 apart, their overlap filled">
                 <line x1="-4" x2="44" y1="14" y2="14" stroke="#3a3b40" strokeWidth="0.2" />
                 <line x1="14" x2="14" y1="-6" y2="34" stroke="#3a3b40" strokeWidth="0.2" />
                 <line x1="26" x2="26" y1="-6" y2="34" stroke="#3a3b40" strokeWidth="0.2" />
@@ -124,8 +124,8 @@ export default function BrandPage() {
             </div>
           </Panel>
 
-          {/* 5. Colour */}
-          <Panel label="Colour" n="05">
+          {/* 5. Color */}
+          <Panel label="Color" n="05">
             <div className="grid grid-cols-3 gap-2 p-5">
               {SWATCHES.map((s) => (
                 <div key={s.name}>
@@ -252,22 +252,22 @@ export default function BrandPage() {
             </p>
           </div>
           <div>
-            <h2 className="text-[13px] font-bold text-[#ecebe6]">Colour rules</h2>
+            <h2 className="text-[13px] font-bold text-[#ecebe6]">Color rules</h2>
             <p className="mt-2 leading-relaxed">
               Cyan and magenta only ever mean left and right; never use them for decoration. Position carries meaning first,
-              colour second. Yellow is reserved for highlighting differences in wording.
+              color second. Yellow is reserved for highlighting differences in wording.
             </p>
           </div>
           <div>
             <h2 className="text-[13px] font-bold text-[#ecebe6]">The mark</h2>
             <p className="mt-2 leading-relaxed">
-              Keep clear space equal to one circle’s radius. On photographs or colour, use the one-colour version: two
+              Keep clear space equal to one circle’s radius. On photographs or color, use the one-color version: two
               outlines and a solid lens. Never rotate it; left stays left.
             </p>
             <div className="mt-4 flex items-center gap-6 text-[#ecebe6]">
-              <Mark size={28} mono title="One-colour mark" />
+              <Mark size={28} mono title="One-color mark" />
               <span className="rounded-[6px] bg-[#ecebe6] px-3 py-2 text-[#131314]">
-                <Mark size={28} mono title="One-colour mark on light" />
+                <Mark size={28} mono title="One-color mark on light" />
               </span>
             </div>
           </div>

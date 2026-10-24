@@ -21,7 +21,7 @@ const STEPS = [
   },
   {
     name: "Compute agreement",
-    body: "Code, not the model, decides what counts as agreed: a claim reported on both sides of centre is agreed; one reported only on one side is one-sided; one that an outlet contradicts is contested.",
+    body: "Code, not the model, decides what counts as agreed: a claim reported on both sides of center is agreed; one reported only on one side is one-sided; one that an outlet contradicts is contested.",
   },
 ];
 

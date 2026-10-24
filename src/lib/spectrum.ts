@@ -1,5 +1,5 @@
 // Shared encoding for the bias spectrum. Position carries the meaning;
-// colour only reinforces it (cyan plate left, key centre, magenta plate right).
+// color only reinforces it (cyan plate left, key center, magenta plate right).
 
 export function biasToPct(bias: number): number {
   return ((Math.max(-1, Math.min(1, bias)) + 1) / 2) * 100;

@@ -9,7 +9,7 @@ import { biasToPct } from "@/lib/spectrum";
 const BINS = [
   { label: "Left", color: "var(--cyan)" },
   { label: "Lean left", color: "color-mix(in oklab, var(--cyan) 55%, var(--key))" },
-  { label: "Centre", color: "var(--key)" },
+  { label: "Center", color: "var(--key)" },
   { label: "Lean right", color: "color-mix(in oklab, var(--magenta) 55%, var(--key))" },
   { label: "Right", color: "var(--magenta)" },
 ];
@@ -25,7 +25,7 @@ function verdict(balance: number, total: number, mean: number): { title: string;
   if (balance >= 50)
     return {
       title: "Mostly varied",
-      body: `Your reading leans ${lean === "center" ? "toward the centre" : lean}, with some range on either side.`,
+      body: `Your reading leans ${lean === "center" ? "toward the center" : lean}, with some range on either side.`,
     };
   return {
     title: "A tight bubble",
@@ -135,7 +135,7 @@ export function BubbleMeter() {
       </section>
 
       {stats.total < 5 && (
-        <Link href="/" className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-[14px] font-semibold text-paper">
+        <Link href="/today" className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-[14px] font-semibold text-paper">
           Go to today’s wall
         </Link>
       )}

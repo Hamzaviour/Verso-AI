@@ -98,7 +98,7 @@ export function ClaimsLedger({ claims, byId }: { claims: Claim[]; byId: Record<n
         <div className="lg:col-span-2">
           <Group
             title="Agreed facts"
-            note="Reported by outlets on both sides of centre, or by most outlets covering the story."
+            note="Reported by outlets on both sides of center, or by most outlets covering the story."
             claims={g.agreed}
             byId={byId}
             accent="var(--ink)"
@@ -106,19 +106,19 @@ export function ClaimsLedger({ claims, byId }: { claims: Claim[]; byId: Record<n
         </div>
         <Group
           title="Only on the left"
-          note="Reported only by outlets left of centre."
+          note="Reported only by outlets left of center."
           claims={g.left}
           byId={byId}
           accent="var(--cyan)"
         />
         <Group
           title="Only on the right"
-          note="Reported only by outlets right of centre."
+          note="Reported only by outlets right of center."
           claims={g.right}
           byId={byId}
           accent="var(--magenta)"
         />
-        <Group title="Narrowly reported" note="Reported by a few outlets near the centre." claims={g.partial} byId={byId} accent="var(--rule-strong)" />
+        <Group title="Narrowly reported" note="Reported by a few outlets near the center." claims={g.partial} byId={byId} accent="var(--rule-strong)" />
         <Group
           title="Contested"
           note="At least one outlet reports something incompatible."

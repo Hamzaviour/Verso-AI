@@ -10,7 +10,16 @@ import { distinctiveWords, segment, sharedWords } from "@/lib/wording";
 import { TimeAgo } from "@/components/time";
 import { useStory } from "./story-context";
 
-export function HeadlineWall({ articles, loadedTerms }: { articles: ArticleView[]; loadedTerms: LoadedTerm[] }) {
+export function HeadlineWall({
+  articles,
+  loadedTerms,
+  embedded = false,
+}: {
+  articles: ArticleView[];
+  loadedTerms: LoadedTerm[];
+  // Inside a page section that already has its own heading.
+  embedded?: boolean;
+}) {
   const [compare, setCompare] = useState(true);
   const scroller = useRef<HTMLDivElement>(null);
   const { active, setActive } = useStory();
@@ -37,10 +46,10 @@ export function HeadlineWall({ articles, loadedTerms }: { articles: ArticleView[
     <section aria-labelledby="wall-heading">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h2 id="wall-heading" className="font-serif text-[28px] leading-tight font-semibold tracking-[-0.01em]">
+          <h2 id="wall-heading" className={embedded ? "sr-only" : "font-serif text-[28px] leading-tight font-semibold tracking-[-0.01em]"}>
             The same event, {pages.length} front pages
           </h2>
-          <p className="mt-1 max-w-[60ch] text-[14px] text-ink-2">
+          <p className={`max-w-[60ch] text-[14px] text-ink-2 ${embedded ? "" : "mt-1"}`}>
             Ordered from left to right.{" "}
             {compare ? (
               <>
