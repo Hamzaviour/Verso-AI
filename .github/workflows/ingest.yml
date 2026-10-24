@@ -1,0 +1,38 @@
+# Free alternative to a frequent Vercel Cron (Hobby allows one run a day).
+# Runs the full pipeline every two hours on GitHub's runners.
+# Add DATABASE_URL and GROQ_API_KEY under Settings → Secrets and variables → Actions.
+name: Ingest news
+
+on:
+  schedule:
+    - cron: "17 */2 * * *"
+  workflow_dispatch:
+    inputs:
+      events:
+        description: "Max events to analyze"
+        default: "10"
+
+concurrency:
+  group: ingest
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/cache@v4
+        with:
+          path: node_modules/@huggingface/transformers/.cache
+          key: embedding-model-v1
+      - run: npm ci
+      - run: npm run ingest -- ${{ github.event.inputs.events || '10' }}
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          VERSO_ANALYSIS_MODEL: openai/gpt-oss-120b

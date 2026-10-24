@@ -1,6 +1,4 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
+# Dependencies
 /node_modules
 /.pnp
 .pnp.*
@@ -10,45 +8,49 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
-
-# next.js
+# Next.js build output
 /.next/
 /out/
-
-# production
 /build
+next-env.d.ts
+*.tsbuildinfo
 
-# misc
-.DS_Store
-*.pem
+# Testing
+/coverage
 
-# debug
+# Environment (secrets never committed)
+.env*
+!.env.example
+
+# Vercel
+.vercel
+
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+*.log
 
-# env files (can opt-in for committing if needed)
-.env*
+# OS / editor
+.DS_Store
+Thumbs.db
+*.pem
+.idea/
+.vscode/*
+!.vscode/extensions.json
 
-# vercel
-.vercel
+# Local tooling and assistant files
+.claude/
+.claude-flow/
+.remember/
+.mcp.json
+CLAUDE.md
+AGENTS.md
+graphify-out/
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-
-!.env.example
-.claude-flow
-.remember
-
-!.env.example
-.claude-flow
-.remember
-
+# Video build artifacts (rendered copy lives in docs/media)
 brag-output/composition/node_modules
 brag-output/composition/.hyperframes
 brag-output/*.mp4
-brag-output/*.mp4
+brag-output/composition/renders/

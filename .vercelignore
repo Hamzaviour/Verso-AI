@@ -1,0 +1,8 @@
+# Not needed to build or run the site
+brag-output
+docs
+12-spectrum.pdf
+.remember
+.claude-flow
+**/.claude-flow
+*.tsbuildinfo
