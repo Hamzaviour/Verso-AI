@@ -51,3 +51,4 @@ next-env.d.ts
 brag-output/composition/node_modules
 brag-output/composition/.hyperframes
 brag-output/*.mp4
+brag-output/*.mp4
