@@ -1,0 +1,803 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Verso — product film</title>
+    <script src="assets/vendor/gsap.min.js"></script>
+    <script src="assets/audio-energy.js"></script>
+    <style>
+      @font-face {
+        font-family: "Source Serif";
+        src: url("assets/fonts/source-serif.woff2") format("woff2");
+        font-weight: 200 900;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: "Source Serif";
+        src: url("assets/fonts/source-serif-italic.woff2") format("woff2");
+        font-weight: 200 900;
+        font-style: italic;
+      }
+      @font-face {
+        font-family: "Archivo";
+        src: url("assets/fonts/archivo.woff2") format("woff2");
+        font-weight: 100 900;
+        font-stretch: 62% 125%;
+      }
+
+      :root {
+        --paper: #e6e6e1;
+        --sheet: #f3f3ef;
+        --ink: #131314;
+        --ink-2: #45464a;
+        --ink-3: #5c5d62;
+        --rule: #c9c9c3;
+        --cyan: #0086c3;
+        --magenta: #c8006a;
+        --yellow: #ffe14a;
+        --yellow-ink: #3a3000;
+        --key: #2b2c30;
+        --shadow: 0 2px 0 rgb(0 0 0 / 0.04), 0 28px 60px -24px rgb(0 0 0 / 0.32);
+      }
+
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: "Archivo", system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--paper);
+      }
+      .clip {
+        position: absolute;
+        inset: 0;
+      }
+      .scene {
+        position: absolute;
+        inset: 0;
+      }
+      .serif {
+        font-family: "Source Serif", Georgia, serif;
+      }
+
+      /* Halftone fields from both plates, the brand's print texture. */
+      .halftone {
+        position: absolute;
+        width: 900px;
+        height: 900px;
+        background-size: 22px 22px;
+        opacity: 0.16;
+      }
+      #ht-cyan {
+        left: -260px;
+        top: -260px;
+        background-image: radial-gradient(var(--cyan) 30%, transparent 32%);
+        -webkit-mask-image: radial-gradient(circle at 30% 30%, black 0%, transparent 65%);
+        mask-image: radial-gradient(circle at 30% 30%, black 0%, transparent 65%);
+      }
+      #ht-magenta {
+        right: -260px;
+        bottom: -260px;
+        background-image: radial-gradient(var(--magenta) 30%, transparent 32%);
+        -webkit-mask-image: radial-gradient(circle at 70% 70%, black 0%, transparent 65%);
+        mask-image: radial-gradient(circle at 70% 70%, black 0%, transparent 65%);
+      }
+
+      .reg-rule {
+        background: linear-gradient(90deg, var(--cyan) 0 33.3%, var(--key) 33.3% 66.6%, var(--magenta) 66.6% 100%);
+      }
+      #bottom-rule {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 10px;
+        transform-origin: bottom;
+      }
+
+      /* Front-page slab */
+      .slab {
+        position: absolute;
+        background: var(--sheet);
+        box-shadow: var(--shadow);
+      }
+      .slab .plate {
+        height: 10px;
+      }
+      .slab .body {
+        padding: 26px 32px 34px;
+      }
+      .slab .lean {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+      }
+      .slab .masthead {
+        margin-top: 14px;
+        border-top: 5px double var(--ink);
+        border-bottom: 5px double var(--ink);
+        padding: 10px 0 9px;
+        text-align: center;
+        font-family: "Source Serif", serif;
+        font-weight: 700;
+        font-variant: small-caps;
+        font-size: 32px;
+        line-height: 1;
+      }
+      .slab h3 {
+        margin: 26px 0 0;
+        font-family: "Source Serif", serif;
+        font-weight: 700;
+        letter-spacing: -0.015em;
+        line-height: 1.1;
+      }
+
+      .hl {
+        position: relative;
+        display: inline-block;
+        isolation: isolate;
+      }
+      .hl > .hl-bg {
+        position: absolute;
+        left: -3px;
+        right: -3px;
+        top: 8%;
+        bottom: 6%;
+        background: var(--yellow);
+        transform-origin: left center;
+        border-radius: 2px;
+      }
+      .hl > .hl-t {
+        position: relative;
+      }
+
+      .label {
+        font-size: 26px;
+        font-weight: 600;
+        color: var(--ink-3);
+      }
+      .h-scene {
+        font-family: "Source Serif", serif;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1;
+        margin: 0;
+      }
+
+      /* Outlet plates */
+      .oplate {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 50px;
+        border: 3px solid;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 22px;
+        letter-spacing: 0.04em;
+        color: var(--ink);
+        box-sizing: border-box;
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 2px solid var(--rule);
+        background: var(--sheet);
+        border-radius: 6px;
+        padding: 4px 10px;
+        font-size: 18px;
+        font-weight: 800;
+        letter-spacing: 0.03em;
+        color: var(--ink-2);
+        margin-right: 8px;
+      }
+      .chip i {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+      .panel {
+        background: var(--sheet);
+        box-shadow: var(--shadow);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="verso" data-start="0" data-width="1920" data-height="1080" data-duration="52">
+      <!-- Shared newsprint ground with drifting halftone from both plates -->
+      <div id="bg" class="clip" data-start="0" data-duration="47.6" data-track-index="0">
+        <div id="ht-cyan" class="halftone"></div>
+        <div id="ht-magenta" class="halftone"></div>
+        <div id="bottom-rule" class="reg-rule"></div>
+      </div>
+
+      <!-- Scene 1: Same story, different headlines -->
+      <section id="s1" class="clip" data-start="0" data-duration="5" data-track-index="1">
+        <div id="s1-in" class="scene">
+          <div class="slab" id="s1-a" style="left: 120px; top: 190px; width: 520px">
+            <div class="plate" style="background: var(--cyan)"></div>
+            <div class="body">
+              <div class="lean">Left</div>
+              <div class="masthead">Mother Jones</div>
+              <h3 style="font-size: 46px">DOJ Is Suing to Decertify Alaska’s Senate Results—But Only If Republicans Lose</h3>
+            </div>
+          </div>
+          <div class="slab" id="s1-b" style="left: 700px; top: 250px; width: 520px">
+            <div class="plate" style="background: color-mix(in oklab, var(--cyan) 51%, var(--key))"></div>
+            <div class="body">
+              <div class="lean">Lean left</div>
+              <div class="masthead">The New York Times</div>
+              <h3 style="font-size: 46px">Trump Officials Seek Block on Alaska Senate Race Results if the Republican Dan Sullivan Loses</h3>
+            </div>
+          </div>
+          <div class="slab" id="s1-c" style="left: 1280px; top: 210px; width: 520px">
+            <div class="plate" style="background: var(--magenta)"></div>
+            <div class="body">
+              <div class="lean">Right</div>
+              <div class="masthead">Breitbart</div>
+              <h3 style="font-size: 46px">DOJ Moves to Preemptively Block Certification of Alaska Senate Race</h3>
+            </div>
+          </div>
+          <p id="s1-cap" class="serif" style="position: absolute; left: 120px; top: 900px; margin: 0; font-size: 34px; font-style: italic; color: var(--ink-2)">
+            One event. Three of its eight front pages.
+          </p>
+        </div>
+      </section>
+
+      <!-- Scene 2: Reveal -->
+      <section id="s2" class="clip" data-start="5" data-duration="7.6" data-track-index="1">
+        <div id="s2-in" class="scene" style="display: flex; flex-direction: column; align-items: center; justify-content: center">
+          <svg id="s2-mark" viewBox="0 0 40 28" width="430" height="301" aria-label="Verso mark">
+            <circle id="s2-c" cx="14" cy="14" r="11" fill="#0086c3" />
+            <circle id="s2-m" cx="26" cy="14" r="11" fill="#c8006a" />
+            <path id="s2-lens" d="M20 4.78 A11 11 0 0 1 20 23.22 A11 11 0 0 1 20 4.78 Z" fill="#131314" />
+          </svg>
+          <div id="s2-word" style="margin-top: 26px; font-size: 190px; font-weight: 800; font-stretch: 112%; letter-spacing: -0.05em; line-height: 0.9">verso</div>
+          <div id="s2-tag" class="serif" style="margin-top: 26px; font-size: 64px; font-style: italic; color: var(--ink-2)">The other side of every story.</div>
+          <div id="s2-row" style="margin-top: 44px; display: flex; align-items: center; gap: 34px; font-size: 32px; font-weight: 600; color: var(--ink-2)">
+            <span>33 outlets</span>
+            <span id="s2-rule" class="reg-rule" style="display: block; width: 220px; height: 6px; border-radius: 3px; transform-origin: left center"></span>
+            <span>left to right</span>
+            <span id="s2-rule2" class="reg-rule" style="display: block; width: 220px; height: 6px; border-radius: 3px; transform-origin: left center"></span>
+            <span>one page</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Scene 3: Today's wall -->
+      <section id="s3" class="clip" data-start="12.6" data-duration="5.8" data-track-index="1">
+        <div id="s3-in" class="scene">
+          <div id="s3-browser" class="panel" style="position: absolute; left: 180px; top: 100px; width: 1560px; height: 880px; border-radius: 16px; overflow: hidden">
+            <div style="height: 60px; display: flex; align-items: center; gap: 12px; padding: 0 26px; border-bottom: 2px solid var(--rule); background: #ebebe6">
+              <i style="width: 16px; height: 16px; border-radius: 50%; background: var(--rule)"></i>
+              <i style="width: 16px; height: 16px; border-radius: 50%; background: var(--rule)"></i>
+              <i style="width: 16px; height: 16px; border-radius: 50%; background: var(--rule)"></i>
+              <span style="margin-left: 26px; background: var(--paper); border-radius: 999px; padding: 6px 22px; font-size: 20px; color: var(--ink-3)">verso / today</span>
+            </div>
+            <div style="padding: 30px 60px 0; background: var(--paper); height: 820px">
+              <div style="display: flex; align-items: center; gap: 40px">
+                <div style="display: flex; align-items: center; gap: 12px; font-size: 40px; font-weight: 800; font-stretch: 112%; letter-spacing: -0.045em">
+                  <svg viewBox="0 0 40 28" width="48" height="34">
+                    <circle cx="14" cy="14" r="11" fill="#0086c3" />
+                    <circle cx="26" cy="14" r="11" fill="#c8006a" />
+                    <path d="M20 4.78 A11 11 0 0 1 20 23.22 A11 11 0 0 1 20 4.78 Z" fill="#131314" />
+                  </svg>
+                  verso
+                </div>
+                <span style="font-size: 24px; font-weight: 600; border-bottom: 3px solid var(--ink); padding-bottom: 4px">Today</span>
+                <span style="font-size: 24px; font-weight: 600; color: var(--ink-3)">Your bubble</span>
+                <span style="font-size: 24px; font-weight: 600; color: var(--ink-3)">Method</span>
+              </div>
+              <div class="reg-rule" style="height: 5px; margin: 22px -60px 0"></div>
+              <div style="display: flex; align-items: flex-end; justify-content: space-between; margin-top: 30px; border-bottom: 4px solid var(--ink); padding-bottom: 14px">
+                <h2 class="serif" style="margin: 0; font-size: 58px; font-weight: 700; letter-spacing: -0.02em">Today’s wall</h2>
+                <span style="font-size: 22px; color: var(--ink-3)">22 stories · 27 outlets</span>
+              </div>
+              <div id="s3-grid" style="display: grid; grid-template-columns: 1fr 1fr; margin-top: 0"></div>
+            </div>
+          </div>
+          <svg id="s3-cursor" viewBox="0 0 24 24" width="54" height="54" style="position: absolute; left: 0; top: 0">
+            <path d="M4 2 L4 19 L8.5 15 L11.5 22 L14.5 20.8 L11.6 14 L18 14 Z" fill="#131314" stroke="#f3f3ef" stroke-width="1.4" stroke-linejoin="round" />
+          </svg>
+        </div>
+      </section>
+
+      <!-- Scene 4: The spectrum -->
+      <section id="s4" class="clip" data-start="18.4" data-duration="7.2" data-track-index="1">
+        <div id="s4-in" class="scene">
+          <div style="position: absolute; left: 120px; top: 170px; width: 600px">
+            <div id="s4-label" class="label">Open a story</div>
+            <h2 id="s4-title" class="serif" style="margin: 20px 0 0; font-size: 56px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.04">
+              DOJ files lawsuit to block Alaska Senate election certification pending outcome
+            </h2>
+            <div id="s4-meta" style="margin-top: 34px; font-size: 28px; color: var(--ink-2)">
+              <b style="color: var(--cyan)">4 left</b> · <b>2 center</b> · <b style="color: var(--magenta)">2 right</b>
+            </div>
+            <p id="s4-note" style="margin: 18px 0 0; font-size: 24px; line-height: 1.45; color: var(--ink-3)">Across: political lean. Up: factual reliability.</p>
+          </div>
+          <div id="s4-panel" class="panel" style="position: absolute; left: 780px; top: 140px; width: 1020px; height: 800px">
+            <div style="position: absolute; left: 50px; top: 40px; font-size: 30px; font-weight: 800">Who covered it</div>
+            <div id="s4-plot" style="position: absolute; left: 60px; top: 130px; width: 900px; height: 600px"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Scene 5: Compare headlines -->
+      <section id="s5" class="clip" data-start="25.6" data-duration="7.6" data-track-index="1">
+        <div id="s5-in" class="scene">
+          <h2 id="s5-h" class="h-scene" style="position: absolute; left: 120px; top: 110px; font-size: 76px">Compare the wording</h2>
+          <div id="s5-toggle" style="position: absolute; right: 120px; top: 118px; display: flex; align-items: center; gap: 18px; border: 3px solid var(--rule); border-radius: 999px; padding: 10px 28px 10px 12px; font-size: 28px; font-weight: 600">
+            <span style="position: relative; display: block; width: 84px; height: 46px">
+              <span id="s5-track" style="position: absolute; inset: 0; border-radius: 999px; background: var(--rule)"></span>
+              <span id="s5-knob" style="position: absolute; left: 4px; top: 4px; width: 38px; height: 38px; border-radius: 50%; background: var(--sheet)"></span>
+            </span>
+            Compare headlines
+          </div>
+          <div id="s5-row"></div>
+        </div>
+      </section>
+
+      <!-- Scene 6: Agreed facts -->
+      <section id="s6" class="clip" data-start="33.2" data-duration="8.4" data-track-index="1">
+        <div id="s6-in" class="scene">
+          <div style="position: absolute; left: 120px; top: 200px; width: 600px">
+            <h2 id="s6-h1" class="h-scene" style="font-size: 92px">Agreed facts first.</h2>
+            <h2 id="s6-h2" class="h-scene" style="font-size: 92px; color: var(--ink-3); margin-top: 10px">Then the rest.</h2>
+            <p id="s6-p" style="margin: 40px 0 0; font-size: 28px; line-height: 1.45; color: var(--ink-2); max-width: 520px">
+              A model attributes each claim to its outlets. Code decides what counts as agreed.
+            </p>
+          </div>
+          <div id="s6-a" class="panel" style="position: absolute; left: 820px; top: 150px; width: 980px; padding: 34px 44px 18px; box-sizing: border-box">
+            <div style="display: flex; justify-content: space-between; border-bottom: 4px solid var(--ink); padding-bottom: 14px; font-size: 28px; font-weight: 800">
+              <span>Every side reports</span><span style="color: var(--ink-3); font-weight: 600">3</span>
+            </div>
+            <div id="s6-c1" style="padding: 24px 0; border-bottom: 2px solid var(--rule)">
+              <p class="serif" style="margin: 0; font-size: 32px; line-height: 1.35">The Department of Justice filed a lawsuit in Alaska to block certification of the Senate election if Republican Dan Sullivan loses.</p>
+              <div style="margin-top: 14px"></div>
+            </div>
+            <div id="s6-c2" style="padding: 24px 0">
+              <p class="serif" style="margin: 0; font-size: 32px; line-height: 1.35">The lawsuit claims that having two candidates named Dan Sullivan on the ballot could confuse voters.</p>
+              <div style="margin-top: 14px"></div>
+            </div>
+          </div>
+          <div id="s6-b" class="panel" style="position: absolute; left: 820px; top: 700px; width: 980px; padding: 30px 44px 28px; box-sizing: border-box">
+            <div style="display: flex; justify-content: space-between; border-bottom: 4px solid var(--cyan); padding-bottom: 14px; font-size: 28px; font-weight: 800">
+              <span>Only on the left</span><span style="color: var(--ink-3); font-weight: 600">4</span>
+            </div>
+            <div id="s6-c3" style="padding-top: 22px">
+              <p class="serif" style="margin: 0; font-size: 32px; line-height: 1.35">Legal experts say the lawsuit lacks clear legal authority.</p>
+              <div style="margin-top: 14px"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Scene 7: Headline game + bubble meter -->
+      <section id="s7" class="clip" data-start="41.6" data-duration="6" data-track-index="1">
+        <div id="s7-in" class="scene">
+          <div id="s7-quiz" class="panel" style="position: absolute; left: 120px; top: 140px; width: 880px; height: 800px">
+            <div id="s7-plate" style="height: 10px; background: var(--rule)"></div>
+            <div style="padding: 36px 48px">
+              <div style="font-size: 20px; font-weight: 700; letter-spacing: 0.12em; color: var(--ink-3)">HEADLINE 1 OF 6</div>
+              <div style="position: relative; margin-top: 20px; height: 66px; border-top: 5px double var(--ink); border-bottom: 5px double var(--ink); box-sizing: border-box">
+                <span id="s7-q" class="serif" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 700; font-variant: small-caps; color: var(--ink-3)">Which outlet ran this?</span>
+                <span id="s7-ans" class="serif" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; font-variant: small-caps">Breitbart</span>
+              </div>
+              <p class="serif" style="margin: 30px 0 0; font-size: 48px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.08">DOJ Moves to Preemptively Block Certification of Alaska Senate Race</p>
+              <div style="margin-top: 50px; font-size: 24px; font-weight: 700">Drag to where you think it sits</div>
+              <div id="s7-track" style="position: relative; margin-top: 30px; width: 784px; height: 70px"></div>
+              <div style="display: flex; justify-content: space-between; width: 784px; font-size: 18px; font-weight: 700; letter-spacing: 0.1em; color: var(--ink-3)">
+                <span>LEFT</span><span>CENTER</span><span>RIGHT</span>
+              </div>
+              <div style="position: relative; margin-top: 36px; height: 70px">
+                <div id="s7-verdict" style="position: absolute; left: 0; top: 0; width: 520px; font-size: 24px; line-height: 1.4; color: var(--ink-2)">
+                  <b class="serif" style="font-size: 36px; color: var(--ink)">Close.</b> You said lean right. Breitbart sits right on our scale.
+                </div>
+                <div id="s7-btn" style="position: absolute; right: 0; top: 4px; background: var(--ink); color: var(--paper); border-radius: 999px; padding: 16px 30px; font-size: 24px; font-weight: 700">Reveal the outlet →</div>
+              </div>
+            </div>
+          </div>
+          <div id="s7-bubble" class="panel" style="position: absolute; left: 1040px; top: 140px; width: 760px; height: 800px; padding: 44px 50px; box-sizing: border-box">
+            <div style="display: flex; justify-content: space-between; align-items: baseline">
+              <span style="font-size: 30px; font-weight: 800">Your bubble</span>
+              <span style="font-size: 18px; font-weight: 700; letter-spacing: 0.1em; color: var(--ink-3)">EXAMPLE READER</span>
+            </div>
+            <div style="margin-top: 18px; font-size: 20px; font-weight: 700; color: var(--ink-3)">Balance</div>
+            <div id="s7-num" style="margin-top: 14px; font-size: 170px; font-weight: 800; font-stretch: 118%; letter-spacing: -0.05em; line-height: 1; font-variant-numeric: tabular-nums">38</div>
+            <div id="s7-bars" style="margin-top: 40px; height: 250px; display: flex; align-items: flex-end; gap: 16px"></div>
+            <div class="reg-rule" style="margin-top: 14px; height: 6px; border-radius: 3px"></div>
+            <p id="s7-cap" class="serif" style="margin: 28px 0 0; font-size: 30px; line-height: 1.35; color: var(--ink-2)">
+              <b style="color: var(--ink)">A tight bubble.</b> Most of this reader’s articles come from left of center.
+            </p>
+          </div>
+          <svg id="s7-cursor" viewBox="0 0 24 24" width="50" height="50" style="position: absolute; left: 0; top: 0">
+            <path d="M4 2 L4 19 L8.5 15 L11.5 22 L14.5 20.8 L11.6 14 L18 14 Z" fill="#131314" stroke="#f3f3ef" stroke-width="1.4" stroke-linejoin="round" />
+          </svg>
+        </div>
+      </section>
+
+      <!-- Scene 8: Outro -->
+      <section id="s8" class="clip" data-start="47.6" data-duration="4.4" data-track-index="1" style="background: #131314">
+        <div id="s8-in" class="scene" style="display: flex; flex-direction: column; align-items: center; justify-content: center; color: #ecebe6">
+          <svg id="s8-mark" viewBox="0 0 40 28" width="300" height="210">
+            <circle id="s8-c" cx="14" cy="14" r="11" fill="#3fb4ec" />
+            <circle id="s8-m" cx="26" cy="14" r="11" fill="#ff5aa8" />
+            <path id="s8-lens" d="M20 4.78 A11 11 0 0 1 20 23.22 A11 11 0 0 1 20 4.78 Z" fill="#ecebe6" />
+          </svg>
+          <h2 id="s8-h" class="h-scene" style="margin-top: 50px; font-size: 168px; letter-spacing: -0.04em">Read the <span style="font-style: italic">other</span> side.</h2>
+          <div id="s8-word" style="margin-top: 46px; display: flex; align-items: center; gap: 26px; font-size: 54px; font-weight: 800; font-stretch: 112%; letter-spacing: -0.045em">
+            <span class="reg-rule" style="display: block; width: 120px; height: 5px; border-radius: 3px"></span>
+            verso
+            <span class="reg-rule" style="display: block; width: 120px; height: 5px; border-radius: 3px"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Audio: music bed, narration per scene, sparse motion-matched SFX -->
+      <audio
+        id="music"
+        data-start="0"
+        data-duration="52"
+        data-track-index="10"
+        data-volume="1"
+        data-automation='{"version":1,"lanes":[{"target":"volume","points":[{"t":0,"v":0},{"t":1,"v":0.14},{"t":49.9,"v":0.14},{"t":50.5,"v":0.32},{"t":51.2,"v":0.32},{"t":52,"v":0}]}]}'
+        src="assets/music/happy-beats-business-moves-vol-12-by-ende-dot-app.mp3"
+      ></audio>
+      <audio id="vo1" data-start="0.5" data-duration="3.67" data-track-index="3" data-volume="1" src="assets/vo/vo1.wav"></audio>
+      <audio id="vo2" data-start="5.4" data-duration="6.55" data-track-index="3" data-volume="1" src="assets/vo/vo2.wav"></audio>
+      <audio id="vo3" data-start="12.9" data-duration="4.93" data-track-index="3" data-volume="1" src="assets/vo/vo3.wav"></audio>
+      <audio id="vo4" data-start="18.7" data-duration="6.19" data-track-index="3" data-volume="1" src="assets/vo/vo4.wav"></audio>
+      <audio id="vo5" data-start="25.9" data-duration="6.55" data-track-index="3" data-volume="1" src="assets/vo/vo5.wav"></audio>
+      <audio id="vo6" data-start="33.5" data-duration="7.41" data-track-index="3" data-volume="1" src="assets/vo/vo6.wav"></audio>
+      <audio id="vo7" data-start="41.9" data-duration="5" data-track-index="3" data-volume="1" src="assets/vo/vo7.wav"></audio>
+      <audio id="vo8" data-start="48.1" data-duration="1.78" data-track-index="3" data-volume="1" src="assets/vo/vo8.wav"></audio>
+
+      <audio id="sfx-slab1" data-start="0.48" data-duration="0.6" data-track-index="11" data-volume="0.5" src="assets/sfx/card-slide-1.ogg"></audio>
+      <audio id="sfx-slab2" data-start="1.03" data-duration="0.6" data-track-index="12" data-volume="0.5" src="assets/sfx/card-slide-1.ogg"></audio>
+      <audio id="sfx-slab3" data-start="1.58" data-duration="0.6" data-track-index="13" data-volume="0.5" src="assets/sfx/card-slide-1.ogg"></audio>
+      <audio id="sfx-logo" data-start="5.98" data-duration="2" data-track-index="11" data-volume="0.45" src="assets/sfx/impactBell_heavy_000.ogg"></audio>
+      <audio id="sfx-click1" data-start="16.98" data-duration="0.5" data-track-index="11" data-volume="0.6" src="assets/sfx/mouseclick1.ogg"></audio>
+      <audio id="sfx-plate1" data-start="18.54" data-duration="0.6" data-track-index="11" data-volume="0.5" src="assets/sfx/drop_001.ogg"></audio>
+      <audio id="sfx-plate2" data-start="19.2" data-duration="0.6" data-track-index="12" data-volume="0.5" src="assets/sfx/drop_002.ogg"></audio>
+      <audio id="sfx-toggle" data-start="26.98" data-duration="0.5" data-track-index="11" data-volume="0.55" src="assets/sfx/switch_002.ogg"></audio>
+      <audio id="sfx-fact1" data-start="34.58" data-duration="0.6" data-track-index="11" data-volume="0.45" src="assets/sfx/drop_001.ogg"></audio>
+      <audio id="sfx-fact2" data-start="35.68" data-duration="0.6" data-track-index="12" data-volume="0.45" src="assets/sfx/drop_002.ogg"></audio>
+      <audio id="sfx-fact3" data-start="37.98" data-duration="0.6" data-track-index="13" data-volume="0.45" src="assets/sfx/drop_001.ogg"></audio>
+      <audio id="sfx-click2" data-start="44.18" data-duration="0.5" data-track-index="11" data-volume="0.6" src="assets/sfx/mouseclick1.ogg"></audio>
+      <audio id="sfx-outro" data-start="48.05" data-duration="1" data-track-index="11" data-volume="0.45" src="assets/sfx/bong_001.ogg"></audio>
+    </div>
+
+    <script>
+      // ---------- Data (real, from Verso's live wall) ----------
+      function biasColor(b) {
+        var t = Math.min(1, Math.abs(b) / 0.7);
+        var plate = b < 0 ? "var(--cyan)" : "var(--magenta)";
+        return "color-mix(in oklab, " + plate + " " + Math.round(t * 100) + "%, var(--key))";
+      }
+
+      // Spectrum plot geometry: 900 x 600 area. x by lean, y by reliability,
+      // hand-nudged where plates would overlap (same as the app's collision pass).
+      var PLATES = [
+        { s: "BBC", b: -0.1, x: 472, y: 112 },
+        { s: "HIL", b: 0.0, x: 512, y: 196 },
+        { s: "CBS", b: -0.26, x: 392, y: 190 },
+        { s: "NYT", b: -0.36, x: 330, y: 124 },
+        { s: "RSN", b: 0.38, x: 668, y: 236 },
+        { s: "VOX", b: -0.6, x: 238, y: 232 },
+        { s: "MJ", b: -0.74, x: 170, y: 324 },
+        { s: "BB", b: 0.86, x: 860, y: 446 },
+      ];
+
+      var CARDS = [
+        { t: "DOJ files lawsuit to block Alaska Senate election certification pending outcome", n: 8, a: 3, topic: "Politics", b: [-0.74, -0.6, -0.36, -0.26, -0.1, 0, 0.38, 0.86] },
+        { t: "Two former FBI officials charged with lying to Congress about Hunter Biden laptop investigation", n: 7, a: 2, topic: "Justice", b: [-0.42, -0.36, -0.3, -0.26, 0, 0.8] },
+        { t: "Melania Trump helps broker temporary ceasefire in Ukrainian city of Oleshky", n: 6, a: 5, topic: "World", b: [-0.45, -0.26, -0.1, 0, 0.86] },
+        { t: "France to Deploy Around 70,000 Police Ahead of Nationwide Protests", n: 5, a: 3, topic: "World", b: [-0.45, -0.26, -0.1, -0.08, 0.66] },
+      ];
+
+      // Compare row: real headlines; hl = words few other outlets used; loaded = flagged term.
+      var SLABS = [
+        { name: "Mother Jones", lean: "Left", b: -0.74, html: 'DOJ Is Suing to <span class="hl" data-loaded="1"><span class="hl-bg"></span><span class="hl-t">Decertify</span></span> Alaska’s Senate Results—But <span class="hl"><span class="hl-bg"></span><span class="hl-t">Only If Republicans Lose</span></span>', tag: ["Decertify", "invalidate"] },
+        { name: "The New York Times", lean: "Lean left", b: -0.36, html: 'Trump <span class="hl"><span class="hl-bg"></span><span class="hl-t">Officials Seek</span></span> Block on Alaska Senate Race Results if the Republican <span class="hl"><span class="hl-bg"></span><span class="hl-t">Dan Sullivan</span></span> Loses' },
+        { name: "BBC News", lean: "Center", b: -0.1, html: 'Trump <span class="hl"><span class="hl-bg"></span><span class="hl-t">administration</span></span> sues to block certification of <span class="hl"><span class="hl-bg"></span><span class="hl-t">upcoming</span></span> Alaska <span class="hl"><span class="hl-bg"></span><span class="hl-t">election</span></span>' },
+        { name: "Breitbart", lean: "Right", b: 0.86, html: 'DOJ <span class="hl"><span class="hl-bg"></span><span class="hl-t">Moves</span></span> to <span class="hl" data-loaded="1"><span class="hl-bg"></span><span class="hl-t">Preemptively</span></span> Block Certification of Alaska Senate Race', tag: ["Preemptively", "in advance"] },
+      ];
+
+      var CHIPS = {
+        "s6-c1": [["NYT", -0.36], ["CBS", -0.26], ["BBC", -0.1], ["HIL", 0]],
+        "s6-c2": [["NYT", -0.36], ["CBS", -0.26], ["BBC", -0.1], ["RSN", 0.38]],
+        "s6-c3": [["NYT", -0.36]],
+      };
+
+      // ---------- Build DOM (synchronous, before the timeline) ----------
+      var plot = document.getElementById("s4-plot");
+      plot.innerHTML =
+        [0.4, 0.6, 0.8]
+          .map(function (r, i) {
+            var y = 470 - ((r - 0.35) / 0.6) * 410;
+            return (
+              '<div style="position:absolute;left:0;right:0;top:' + y + 'px;border-top:2px dashed var(--rule)"></div>' +
+              '<div style="position:absolute;left:0;top:' + (y - 30) + 'px;font-size:18px;font-weight:700;letter-spacing:.08em;color:var(--ink-3)">' +
+              ["MIXED", "MOSTLY RELIABLE", "HIGH"][i] +
+              "</div>"
+            );
+          })
+          .join("") +
+        '<div style="position:absolute;left:450px;top:20px;height:470px;border-left:2px solid var(--rule)"></div>' +
+        '<div id="s4-axis" class="reg-rule" style="position:absolute;left:0;right:0;top:500px;height:8px;border-radius:4px;transform-origin:center"></div>' +
+        '<div style="position:absolute;left:0;right:0;top:530px;display:flex;justify-content:space-between;font-size:22px;font-weight:700;letter-spacing:.1em;color:var(--ink-2)"><span>LEFT</span><span>CENTER</span><span>RIGHT</span></div>';
+      PLATES.forEach(function (p, i) {
+        var w = 40 + p.s.length * 17;
+        p.w = w;
+        var el = document.createElement("div");
+        el.className = "oplate";
+        el.id = "pl-" + i;
+        el.style.width = w + "px";
+        el.style.borderColor = biasColor(p.b);
+        el.style.background = "color-mix(in oklab, " + biasColor(p.b) + " 14%, var(--sheet))";
+        el.textContent = p.s;
+        plot.appendChild(el);
+      });
+      var tip = document.createElement("div");
+      tip.id = "s4-tip";
+      tip.className = "panel";
+      tip.style.cssText = "position:absolute;left:600px;top:300px;padding:16px 22px;border:2px solid var(--rule);border-radius:10px;width:300px";
+      tip.innerHTML = '<div class="serif" style="font-size:28px;font-weight:700">Breitbart</div><div style="margin-top:4px;font-size:20px;color:var(--ink-2)">Right · Low reliability</div><div style="font-size:18px;color:var(--ink-3)">1 article on this story</div>';
+      plot.appendChild(tip);
+
+      var grid = document.getElementById("s3-grid");
+      CARDS.forEach(function (c, i) {
+        var dots = c.b
+          .map(function (b) {
+            return '<i style="position:absolute;bottom:6px;left:' + ((b + 1) / 2) * 100 + '%;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:' + biasColor(b) + '"></i>';
+          })
+          .join("");
+        var card = document.createElement("div");
+        card.id = "card-" + i;
+        card.style.cssText = "padding:26px 40px 24px " + (i % 2 ? "40px" : "0") + ";border-bottom:2px solid var(--rule);" + (i % 2 ? "border-left:2px solid var(--rule);" : "") + "height:212px;box-sizing:border-box;position:relative";
+        card.innerHTML =
+          '<div class="serif" style="font-size:34px;font-weight:700;letter-spacing:-.015em;line-height:1.12;height:116px">' + c.t + "</div>" +
+          '<div style="position:relative;height:26px;margin-top:10px;border-bottom:2px solid var(--rule)">' + dots + '<span style="position:absolute;left:50%;bottom:0;width:2px;height:10px;background:var(--ink-3)"></span></div>' +
+          '<div style="margin-top:12px;font-size:20px;color:var(--ink-3)"><b style="color:var(--ink-2)">' + c.topic + "</b> · " + c.n + " outlets · " + c.a + " agreed facts</div>";
+        grid.appendChild(card);
+      });
+      var lead = document.getElementById("card-0");
+      var ring = document.createElement("div");
+      ring.id = "card-ring";
+      ring.style.cssText = "position:absolute;inset:8px -14px 8px -14px;border:4px solid var(--ink);border-radius:10px;opacity:0";
+      lead.appendChild(ring);
+
+      var row = document.getElementById("s5-row");
+      SLABS.forEach(function (s, i) {
+        var el = document.createElement("div");
+        el.className = "slab";
+        el.id = "s5-slab-" + i;
+        el.style.cssText = "left:" + (120 + i * 426) + "px;top:290px;width:400px;height:500px";
+        el.innerHTML =
+          '<div class="plate" style="background:' + biasColor(s.b) + '"></div><div class="body" style="padding:24px 28px"><div class="lean" style="font-size:18px">' + s.lean + '</div><div class="masthead" style="font-size:27px">' + s.name + '</div><h3 style="font-size:41px;margin-top:24px">' + s.html + "</h3></div>";
+        row.appendChild(el);
+        if (s.tag) {
+          var t = document.createElement("div");
+          t.id = "s5-tag-" + i;
+          t.className = "panel";
+          t.style.cssText = "position:absolute;left:" + (120 + i * 426) + "px;top:820px;width:400px;box-sizing:border-box;padding:16px 22px;border-radius:10px;font-size:22px;line-height:1.35;color:var(--ink-2)";
+          t.innerHTML = '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--magenta);margin-right:10px"></span>Loaded: <b style="color:var(--ink)">“' + s.tag[0] + '”</b><br>Plainer: <b style="color:var(--ink)">“' + s.tag[1] + "”</b>";
+          row.appendChild(t);
+        }
+      });
+      // One highlighter stroke per word, so multi-word marks wrap like real ink.
+      document.querySelectorAll('#s5-row .hl').forEach(function (h) {
+        var words = h.querySelector('.hl-t').textContent.split(' ');
+        if (words.length < 2) return;
+        h.outerHTML = words
+          .map(function (w) {
+            return '<span class="hl"><span class="hl-bg"></span><span class="hl-t">' + w + '</span></span>';
+          })
+          .join(' ');
+      });
+      document.querySelectorAll('#s5-row .hl[data-loaded="1"] .hl-t').forEach(function (n) {
+        n.style.textDecorationLine = "underline";
+        n.style.textDecorationStyle = "wavy";
+        n.style.textDecorationThickness = "3px";
+        n.style.textUnderlineOffset = "8px";
+        n.style.textDecorationColor = "rgba(200,0,106,0)";
+      });
+
+      Object.keys(CHIPS).forEach(function (id) {
+        var holder = document.querySelector("#" + id + " > div");
+        holder.innerHTML = CHIPS[id]
+          .map(function (c) {
+            return '<span class="chip"><i style="background:' + biasColor(c[1]) + '"></i>' + c[0] + "</span>";
+          })
+          .join("");
+      });
+
+      // Quiz track (784 wide; marks inset by the puck radius)
+      var track = document.getElementById("s7-track");
+      var others = [-0.74, -0.6, -0.36, -0.26, -0.1, 0, 0.38];
+      track.innerHTML =
+        '<div class="reg-rule" style="position:absolute;left:20px;right:20px;top:34px;height:6px;border-radius:3px"></div>' +
+        '<div style="position:absolute;left:392px;top:26px;width:2px;height:22px;background:var(--ink-3)"></div>' +
+        others
+          .map(function (b, i) {
+            return '<i class="q-dot" style="position:absolute;top:2px;left:' + (20 + ((b + 1) / 2) * 744 - 8) + "px;width:16px;height:16px;border-radius:50%;background:" + biasColor(b) + '"></i>';
+          })
+          .join("") +
+        '<div id="s7-bb" class="oplate" style="width:74px;top:12px;border-color:var(--magenta);background:var(--sheet)">BB</div>' +
+        '<div id="s7-puck" style="position:absolute;left:0;top:17px;width:40px;height:40px;border-radius:50%;background:var(--ink);box-shadow:0 0 0 6px var(--sheet), 0 0 0 8px var(--ink)"></div>';
+
+      var bars = document.getElementById("s7-bars");
+      [
+        [92, "var(--cyan)"],
+        [64, "color-mix(in oklab, var(--cyan) 55%, var(--key))"],
+        [30, "var(--key)"],
+        [10, "color-mix(in oklab, var(--magenta) 55%, var(--key))"],
+        [6, "var(--magenta)"],
+      ].forEach(function (b, i) {
+        var el = document.createElement("div");
+        el.className = "bbar";
+        el.style.cssText = "flex:1;height:" + b[0] + "%;background:" + b[1] + ";border-radius:4px 4px 0 0;transform-origin:bottom";
+        bars.appendChild(el);
+      });
+
+      // ---------- Timeline ----------
+      var tl = gsap.timeline({ paused: true });
+
+      // Scene fades: in over 0.45s at start, out over 0.4s before the cut.
+      [
+        ["#s1-in", 0, 5],
+        ["#s2-in", 5, 12.6],
+        ["#s3-in", 12.6, 18.4],
+        ["#s4-in", 18.4, 25.6],
+        ["#s5-in", 25.6, 33.2],
+        ["#s6-in", 33.2, 41.6],
+        ["#s7-in", 41.6, 47.6],
+      ].forEach(function (s, i) {
+        if (i > 0) tl.fromTo(s[0], { opacity: 0 }, { opacity: 1, duration: 0.45, ease: "power2.out" }, s[1]);
+        tl.to(s[0], { opacity: 0, duration: 0.4, ease: "power2.in" }, s[2] - 0.4);
+      });
+
+      // Ambient halftone drift for the whole piece.
+      tl.fromTo("#ht-cyan", { x: -30, y: -20 }, { x: 40, y: 30, duration: 47.6, ease: "none" }, 0);
+      tl.fromTo("#ht-magenta", { x: 30, y: 20 }, { x: -40, y: -30, duration: 47.6, ease: "none" }, 0);
+
+      // Scene 1: three slabs slam in on the beat grid, then hold.
+      // beat-grid: slabs at 0.56, 1.09, 1.64
+      ["#s1-a", "#s1-b", "#s1-c"].forEach(function (id, i) {
+        tl.fromTo(id, { y: 140, opacity: 0, rotation: i === 1 ? 1.5 : -1.5 }, { y: 0, opacity: 1, rotation: 0, duration: 0.6, ease: "expo.out" }, 0.5 + i * 0.55);
+      });
+      tl.fromTo("#s1-cap", { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 2.3);
+      tl.to(["#s1-a", "#s1-b", "#s1-c"], { y: -50, duration: 0.45, ease: "power2.in", stagger: 0.06 }, 4.55);
+
+      // Scene 2: the two plates register; the overlap goes solid.
+      tl.fromTo("#s2-c", { x: -26 }, { x: 0, duration: 0.85, ease: "expo.out" }, 5.2);
+      tl.fromTo("#s2-m", { x: 26 }, { x: 0, duration: 0.85, ease: "expo.out" }, 5.2);
+      tl.fromTo("#s2-lens", { opacity: 0, scale: 0.6, transformOrigin: "50% 50%" }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, 6.0); // beat-locked: 6.00s
+      tl.fromTo("#s2-word", { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "expo.out" }, 6.55);
+      tl.fromTo("#s2-tag", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "power3.out" }, 7.3);
+      tl.fromTo("#s2-row", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 8.6);
+      tl.fromTo(["#s2-rule", "#s2-rule2"], { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "expo.out", stagger: 0.3 }, 8.74); // beat-locked: 8.74s
+
+      // Scene 3: browser rises, cards fill in, cursor picks the lead story.
+      tl.fromTo("#s3-browser", { y: 70 }, { y: 0, duration: 0.8, ease: "expo.out" }, 12.6);
+      [0, 1, 2, 3].forEach(function (i) {
+        tl.fromTo("#card-" + i, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: "power3.out" }, 13.3 + i * 0.55);
+      });
+      tl.fromTo("#s3-cursor", { x: 1500, y: 1000, opacity: 0 }, { x: 1250, y: 820, opacity: 1, duration: 0.5, ease: "power2.out" }, 15.5);
+      tl.to("#s3-cursor", { x: 640, y: 470, duration: 0.95, ease: "power3.inOut" }, 16.0);
+      tl.to("#s3-cursor", { scale: 0.85, duration: 0.08, yoyo: true, repeat: 1, transformOrigin: "20% 10%" }, 16.98);
+      tl.to("#card-ring", { opacity: 1, duration: 0.15 }, 17.0);
+      tl.to("#card-0", { scale: 0.985, duration: 0.1, yoyo: true, repeat: 1, transformOrigin: "50% 50%" }, 17.0);
+      tl.to("#s3-browser", { scale: 1.06, duration: 0.8, ease: "power2.in", transformOrigin: "30% 40%" }, 17.45);
+
+      // Scene 4: outlets slide onto the spectrum from the center baseline.
+      tl.fromTo("#s4-label", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 18.5);
+      tl.fromTo("#s4-title", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "expo.out" }, 18.6);
+      tl.fromTo("#s4-panel", { x: 60, opacity: 0 }, { x: 0, opacity: 1, duration: 0.6, ease: "expo.out" }, 18.45);
+      tl.fromTo("#s4-axis", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "expo.out" }, 18.5);
+      // beat-locked: 18.56s (first plate leaves the baseline)
+      PLATES.forEach(function (p, i) {
+        tl.fromTo(
+          "#pl-" + i,
+          { x: 450 - p.w / 2, y: 470, opacity: 0, scale: 0.6 },
+          { x: p.x - p.w / 2, y: p.y - 25, opacity: 1, scale: 1, duration: 0.95, ease: "expo.out" },
+          18.56 + i * 0.09,
+        );
+      });
+      tl.fromTo("#s4-meta", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 20.4);
+      tl.fromTo("#s4-note", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 21.0);
+      tl.to("#pl-7", { scale: 1.14, boxShadow: "0 14px 30px -10px rgba(0,0,0,.35)", duration: 0.35, ease: "back.out(2)" }, 22.2);
+      tl.fromTo("#s4-tip", { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: "power3.out" }, 22.35);
+      tl.to(["#pl-0", "#pl-1", "#pl-2", "#pl-3", "#pl-4", "#pl-5", "#pl-6"], { opacity: 0.35, duration: 0.3 }, 22.2);
+
+      // Scene 5: compare toggle flips on; the highlighter sweeps; loaded words flagged.
+      tl.fromTo("#s5-h", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "expo.out" }, 25.7);
+      tl.fromTo("#s5-toggle", { x: 40, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 25.9);
+      [0, 1, 2, 3].forEach(function (i) {
+        tl.fromTo("#s5-slab-" + i, { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "expo.out" }, 26.0 + i * 0.12);
+      });
+      tl.set("#s5-row .hl-bg", { scaleX: 0 }, 25.6);
+      tl.to("#s5-knob", { x: 38, duration: 0.3, ease: "power3.out" }, 27.0);
+      tl.to("#s5-track", { backgroundColor: "#131314", duration: 0.3 }, 27.0);
+      [0, 1, 2, 3].forEach(function (i) {
+        tl.to("#s5-slab-" + i + " .hl-bg", { scaleX: 1, duration: 0.45, ease: "power2.out", stagger: 0.12 }, 27.35 + i * 0.28);
+      });
+      tl.to("#s5-row .hl[data-loaded='1'] .hl-t", { textDecorationColor: "rgba(200,0,106,1)", duration: 0.4 }, 29.4);
+      tl.fromTo(["#s5-tag-0", "#s5-tag-3"], { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "back.out(1.6)", stagger: 0.25 }, 29.6);
+
+      // Scene 6: agreed facts tick in, then the one-sided column.
+      tl.fromTo(["#s6-h1", "#s6-h2"], { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "expo.out", stagger: 0.35 }, 33.4);
+      tl.fromTo("#s6-p", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 34.6);
+      tl.fromTo("#s6-a", { x: 60, opacity: 0 }, { x: 0, opacity: 1, duration: 0.6, ease: "expo.out" }, 33.8);
+      tl.fromTo("#s6-c1", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 34.6);
+      tl.fromTo("#s6-c2", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 35.7);
+      tl.fromTo("#s6-b", { x: 60, opacity: 0 }, { x: 0, opacity: 1, duration: 0.6, ease: "expo.out" }, 37.6);
+      tl.fromTo("#s6-c3", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 38.0);
+
+      // Scene 7: guess, reveal, and the bubble meter.
+      tl.fromTo("#s7-quiz", { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "expo.out" }, 41.7);
+      tl.fromTo("#s7-bubble", { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "expo.out" }, 41.9);
+      tl.set(["#s7-ans", "#s7-bb", ".q-dot", "#s7-verdict", "#s7-cap"], { opacity: 0 }, 41.6);
+      tl.fromTo("#s7-puck", { x: 372 }, { x: 372, duration: 0.01 }, 41.6);
+      tl.to("#s7-puck", { x: 560, duration: 1.0, ease: "power3.inOut" }, 42.6);
+      tl.fromTo("#s7-cursor", { x: 980, y: 1000, opacity: 0 }, { x: 860, y: 860, opacity: 1, duration: 0.5, ease: "power2.out" }, 43.4);
+      tl.to("#s7-cursor", { x: 880, y: 830, duration: 0.28, ease: "power2.out" }, 43.9);
+      tl.to("#s7-cursor", { scale: 0.85, duration: 0.08, yoyo: true, repeat: 1, transformOrigin: "20% 10%" }, 44.18);
+      tl.to("#s7-btn", { scale: 0.96, duration: 0.08, yoyo: true, repeat: 1 }, 44.2);
+      tl.to("#s7-q", { opacity: 0, duration: 0.25 }, 44.3);
+      tl.to("#s7-ans", { opacity: 1, duration: 0.35 }, 44.4);
+      tl.to("#s7-plate", { backgroundColor: "#c8006a", duration: 0.5 }, 44.3);
+      tl.fromTo("#s7-bb", { x: 560 - 17, opacity: 0 }, { x: 20 + (1.86 / 2) * 744 - 37, opacity: 1, duration: 0.9, ease: "expo.out" }, 44.4);
+      tl.to(".q-dot", { opacity: 1, duration: 0.35, stagger: 0.05 }, 44.7);
+      tl.to("#s7-puck", { opacity: 0.35, duration: 0.3 }, 44.4);
+      tl.to("#s7-btn", { opacity: 0, duration: 0.25 }, 44.6);
+      tl.to("#s7-cursor", { opacity: 0, duration: 0.25 }, 44.7);
+      tl.to("#s7-verdict", { opacity: 1, duration: 0.4 }, 45.1);
+      tl.fromTo(".bbar", { scaleY: 0 }, { scaleY: 1, duration: 0.7, ease: "expo.out", stagger: 0.12 }, 42.4);
+      tl.fromTo("#s7-num", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 42.2);
+      tl.to("#s7-cap", { opacity: 1, duration: 0.4 }, 45.6);
+
+      // Scene 8: outro.
+      tl.fromTo("#s8-c", { x: -22 }, { x: 0, duration: 0.7, ease: "expo.out" }, 47.65);
+      tl.fromTo("#s8-m", { x: 22 }, { x: 0, duration: 0.7, ease: "expo.out" }, 47.65);
+      tl.fromTo("#s8-lens", { opacity: 0 }, { opacity: 1, duration: 0.35 }, 48.1);
+      tl.fromTo("#s8-h", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, ease: "expo.out" }, 48.5);
+      tl.fromTo("#s8-word", { opacity: 0 }, { opacity: 1, duration: 0.6 }, 49.3);
+      tl.to("#s8-in", { opacity: 0, duration: 0.9, ease: "power2.in" }, 51.1);
+
+      // Audio-reactive: the registration rule and the outro mark breathe with the bed.
+      var E = window.AUDIO_ENERGY;
+      for (var f = 0; f < E.values.length; f++) {
+        tl.call(
+          (function (v, t) {
+            return function () {
+              if (t < 47.6) {
+                gsap.set("#bottom-rule", { scaleY: 0.8 + v * 0.7, opacity: 0.72 + v * 0.28 });
+              } else {
+                gsap.set("#s8-mark", { filter: "drop-shadow(0 0 " + Math.round(6 + v * 26) + "px rgba(236,235,230," + (0.12 + v * 0.22).toFixed(2) + "))" });
+              }
+            };
+          })(E.values[f], f / E.fps),
+          [],
+          f / E.fps,
+        );
+      }
+
+      window.__timelines["verso"] = tl;
+    </script>
+  </body>
+</html>
