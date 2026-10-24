@@ -1,0 +1,156 @@
+@import "tailwindcss";
+
+/* Verso tokens. World: the front-page comparison wall, printed in process
+   colour. Cyan = left of centre, magenta = right, key (ink) = centre,
+   process yellow = the highlighter that marks wording differences. */
+
+:root {
+  --paper: #e6e6e1;
+  --sheet: #f3f3ef;
+  --sheet-2: #ebebe6;
+  --ink: #131314;
+  --ink-2: #45464a;
+  --ink-3: #6c6d72;
+  --rule: #c9c9c3;
+  --rule-strong: #131314;
+  --cyan: #0086c3;
+  --cyan-soft: #cfe8f4;
+  --magenta: #c8006a;
+  --magenta-soft: #f5d3e3;
+  --yellow: #ffe14a;
+  --yellow-ink: #3a3000;
+  --key: #2b2c30;
+  --focus: #0086c3;
+  --shadow: 0 1px 0 rgb(0 0 0 / 0.04), 0 8px 24px -12px rgb(0 0 0 / 0.18);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0e0f11;
+    --sheet: #17181b;
+    --sheet-2: #1e1f23;
+    --ink: #ecebe6;
+    --ink-2: #b4b4b0;
+    --ink-3: #8a8a88;
+    --rule: #2c2d31;
+    --rule-strong: #ecebe6;
+    --cyan: #3fb4ec;
+    --cyan-soft: #0f3346;
+    --magenta: #ff5aa8;
+    --magenta-soft: #4a1630;
+    --yellow: #ffd83a;
+    --yellow-ink: #2a2200;
+    --key: #d9d8d3;
+    --focus: #3fb4ec;
+    --shadow: 0 1px 0 rgb(255 255 255 / 0.03), 0 10px 30px -14px rgb(0 0 0 / 0.7);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper: #0e0f11;
+  --sheet: #17181b;
+  --sheet-2: #1e1f23;
+  --ink: #ecebe6;
+  --ink-2: #b4b4b0;
+  --ink-3: #8a8a88;
+  --rule: #2c2d31;
+  --rule-strong: #ecebe6;
+  --cyan: #3fb4ec;
+  --cyan-soft: #0f3346;
+  --magenta: #ff5aa8;
+  --magenta-soft: #4a1630;
+  --yellow: #ffd83a;
+  --yellow-ink: #2a2200;
+  --key: #d9d8d3;
+  --focus: #3fb4ec;
+  --shadow: 0 1px 0 rgb(255 255 255 / 0.03), 0 10px 30px -14px rgb(0 0 0 / 0.7);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-sheet: var(--sheet);
+  --color-sheet-2: var(--sheet-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
+  --color-cyan: var(--cyan);
+  --color-cyan-soft: var(--cyan-soft);
+  --color-magenta: var(--magenta);
+  --color-magenta-soft: var(--magenta-soft);
+  --color-yellow: var(--yellow);
+  --color-yellow-ink: var(--yellow-ink);
+  --color-key: var(--key);
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-source-serif), ui-serif, Georgia, serif;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html {
+  background: var(--paper);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01", "tnum" 0;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--yellow);
+  color: var(--yellow-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Headline serif with optical sizing on. */
+.font-serif {
+  font-optical-sizing: auto;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Highlighter: process yellow laid down like a marker stroke. */
+.mark-diff {
+  background: linear-gradient(transparent 8%, var(--yellow) 8%, var(--yellow) 92%, transparent 92%);
+  color: var(--yellow-ink);
+  border-radius: 1px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: 0 0.08em;
+}
+
+.mark-loaded {
+  text-decoration: underline;
+  text-decoration-color: var(--magenta);
+  text-decoration-thickness: 0.12em;
+  text-underline-offset: 0.16em;
+  text-decoration-style: wavy;
+}
+
+/* Registration mark used as a decorative printer's detail. */
+.reg-rule {
+  background-image: linear-gradient(90deg, var(--cyan) 0 33.3%, var(--key) 33.3% 66.6%, var(--magenta) 66.6% 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
