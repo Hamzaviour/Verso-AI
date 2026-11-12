@@ -8,6 +8,8 @@
 
 Verso reads 33 news outlets from left to right, groups their coverage into events, and puts every side of a story on one page: who covered it, how each outlet worded it, and which facts every side reports.
 
+**[🌐 Read today's edition live](https://versoaiproject.vercel.app)**
+
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FHamzaviour%2FVerso-AI&env=DATABASE_URL,GROQ_API_KEY,CRON_SECRET&envDescription=Neon%20connection%20string%2C%20free%20Groq%20key%20and%20a%20random%20cron%20secret&project-name=verso)
 &nbsp;
 ![Next.js 16](https://img.shields.io/badge/Next.js-16-131314?logo=nextdotjs)
